@@ -90,7 +90,7 @@ tahun_input = st.number_input("Masukkan tahun", min_value=2024, max_value=2100, 
 bulan_input = st.selectbox("Pilih bulan", list(df.index))
 
 # Buat model per bulan
-df_bulanan = df.reset_index().melt(id_vars="Bulan", var_name="Tahun", value_name="Ton")
+df_bulanan = df.reset_index().melt(id_vars="BULAN", var_name="Tahun", value_name="Ton")
 df_bulanan["Tahun"] = df_bulanan["Tahun"].astype(int)
 
 # Filter bulan yang dipilih
