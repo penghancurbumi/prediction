@@ -94,7 +94,7 @@ df_bulanan = df.reset_index().melt(id_vars="BULAN", var_name="Tahun", value_name
 df_bulanan["Tahun"] = df_bulanan["Tahun"].astype(int)
 
 # Filter bulan yang dipilih
-df_bulan_terpilih = df_bulanan[df_bulanan["Bulan"] == bulan_input]
+df_bulan_terpilih = df_bulanan[df_bulanan["BULAN"] == bulan_input]
 
 # Regresi Linear untuk bulan terpilih
 X_bulan = df_bulan_terpilih["Tahun"].values.reshape(-1, 1)
