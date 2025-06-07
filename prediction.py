@@ -42,7 +42,7 @@ bulan_urut = [
 df_reset = df.reset_index()
 
 # Ubah ke bentuk per tahun sebagai index, bulan jadi kolom
-df_bulan_per_tahun = df_reset.set_index("Bulan").T  # Transpose
+df_bulan_per_tahun = df_reset.set_index("BULAN").T  # Transpose
 
 # Normalisasi nama kolom: hapus spasi dan ubah ke huruf kapital semua
 df_bulan_per_tahun.columns = df_bulan_per_tahun.columns.str.strip().str.upper()
