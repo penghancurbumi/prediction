@@ -40,7 +40,7 @@ bulan_urut = [
 df_reset = df.reset_index()
 
 # Ubah ke bentuk per tahun sebagai index, bulan jadi kolom
-df_bulan_per_tahun = df_reset.set_index("bulan").T  # Transpose
+df_bulan_per_tahun = df_reset.set_index("Bulan").T  # Transpose
 
 # Pastikan hanya ambil bulan yang sesuai urutan
 df_bulan_per_tahun = df_bulan_per_tahun[bulan_urut]
