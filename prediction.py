@@ -7,7 +7,6 @@ import re
 
 st.title("Analisis Regresi Linear Berat Sampah Kota Sukabumi")
 
-# Load data mentah
 @st.cache_data
 def load_data():
     with open("data-sampah-kota-sukabumi.txt", "r", encoding="utf-8") as f:
@@ -25,43 +24,42 @@ def load_data():
                 cleaned_rows.append([month] + [float(n) for n in numbers])
 
     df = pd.DataFrame(cleaned_rows, columns=["Bulan", "2017", "2018", "2020", "2021", "2022", "2023"])
-    df.set_index("Bulan", inplace=True)
     return df
 
 df = load_data()
 
-# Atur urutan bulan dengan urutan eksplisit (semua uppercase)
+# Hapus baris 'TAHUNAN' jika ada, supaya tidak jadi kolom yang bikin error
+df = df[df["Bulan"].str.upper() != "TAHUNAN"]
+
+# Set index lagi setelah hapus baris yang tidak perlu
+df.set_index("Bulan", inplace=True)
+
 bulan_urut = [
     'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
     'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
 ]
 
-# Reset index agar 'Bulan' jadi kolom biasa
 df_reset = df.reset_index()
 
-# Ubah ke bentuk per tahun sebagai index, bulan jadi kolom
-df_bulan_per_tahun = df_reset.set_index("Bulan").T  # transpose
+# Transpose: ubah jadi per tahun index, bulan kolom
+df_bulan_per_tahun = df_reset.set_index("Bulan").T
 
-# Pastikan semua kolom bulan diubah ke uppercase supaya sesuai dengan bulan_urut
+# Ubah semua nama kolom (bulan) ke uppercase agar konsisten
 df_bulan_per_tahun.columns = df_bulan_per_tahun.columns.str.upper()
 
-# Debugging: tampilkan kolom yang ada dan bulan yang diinginkan
 st.write("Kolom df_bulan_per_tahun:", df_bulan_per_tahun.columns.tolist())
 st.write("Bulan urut:", bulan_urut)
 
-# Cek kolom bulan yang hilang
 missing = [b for b in bulan_urut if b not in df_bulan_per_tahun.columns]
 if missing:
     st.error(f"Kolom bulan hilang: {missing}")
 else:
-    # Filter hanya kolom bulan yang sesuai urutan
     df_bulan_per_tahun = df_bulan_per_tahun[bulan_urut]
 
-    # Tampilkan
     st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
     st.dataframe(df_bulan_per_tahun)
 
-# Tampilkan total tahunan
+# Total sampah tahunan
 yearly = df.sum().reset_index()
 yearly.columns = ["Tahun", "Total Sampah (Ton)"]
 st.subheader("Total Sampah per Tahun")
@@ -73,14 +71,13 @@ fig1, ax1 = plt.subplots()
 sns.barplot(data=yearly, x="Tahun", y="Total Sampah (Ton)", ax=ax1)
 st.pyplot(fig1)
 
-# Regresi Linear berdasarkan total tahunan
+# Regresi Linear total tahunan
 X = yearly["Tahun"].astype(int).values.reshape(-1, 1)
 y = yearly["Total Sampah (Ton)"].values
 model_total = LinearRegression()
 model_total.fit(X, y)
 preds_total = model_total.predict(X)
 
-# Visualisasi regresi total
 st.subheader("Regresi Linear Total Tahunan")
 fig2, ax2 = plt.subplots()
 ax2.scatter(X, y, label="Data Aktual")
@@ -90,22 +87,19 @@ ax2.set_ylabel("Total Sampah (Ton)")
 ax2.legend()
 st.pyplot(fig2)
 
-# Prediksi berdasarkan input user (tahun & bulan)
+# Prediksi berdasarkan input user
 st.subheader("Prediksi Berat Sampah Berdasarkan Tahun dan Bulan")
 tahun_input = st.number_input("Masukkan tahun", min_value=2024, max_value=2100, value=2025)
 
-# Untuk pilihan bulan, gunakan versi uppercase karena sudah diseragamkan
+# Pilihan bulan sudah uppercase
 bulan_input = st.selectbox("Pilih bulan", df.index.str.upper())
 
-# Buat model per bulan
 df_bulanan = df.reset_index().melt(id_vars="Bulan", var_name="Tahun", value_name="Ton")
 df_bulanan["Tahun"] = df_bulanan["Tahun"].astype(int)
 df_bulanan["Bulan"] = df_bulanan["Bulan"].str.upper()
 
-# Filter bulan yang dipilih
 df_bulan_terpilih = df_bulanan[df_bulanan["Bulan"] == bulan_input]
 
-# Regresi Linear untuk bulan terpilih
 X_bulan = df_bulan_terpilih["Tahun"].values.reshape(-1, 1)
 y_bulan = df_bulan_terpilih["Ton"].values
 model_bulan = LinearRegression()
