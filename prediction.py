@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 import re
+import calendar
 
 st.title("Analisis Regresi Linear Berat Sampah Kota Sukabumi")
 
@@ -16,15 +17,28 @@ def load_data():
     lines = [line.strip() for line in raw.strip().split("\n") if line.strip()]
     cleaned_rows = []
 
+    # Ambil nama bulan dari modul calendar
+    nama_bulan = [calendar.month_name[i] for i in range(1, 13)]
+
+    # Ambil tahun dari baris kedua (header)
+    header_line = lines[1]
+    tahun_list = re.findall(r'\d{4}', header_line)
+    tahun_columns = [t.strip() for t in tahun_list]
+
     for line in lines[2:]:
         parts = re.split(r'\s{2,}', line)
         if len(parts) >= 2:
             month = parts[0].strip()
-            numbers = re.findall(r'\d+\.\d+', parts[1])
-            if len(numbers) == 6:
-                cleaned_rows.append([month] + [float(n) for n in numbers])
+            if month not in nama_bulan:
+                continue
+            numbers = re.findall(r'\d+\.\d+', line)
+            row = [month] + [float(n) for n in numbers]
+            # Tambah None jika data tidak lengkap
+            while len(row) < len(tahun_columns) + 1:
+                row.append(None)
+            cleaned_rows.append(row)
 
-    df = pd.DataFrame(cleaned_rows, columns=["Bulan", "2017", "2018", "2020", "2021", "2022", "2023"])
+    df = pd.DataFrame(cleaned_rows, columns=["Bulan"] + tahun_columns)
     df.set_index("Bulan", inplace=True)
     return df
 
@@ -32,11 +46,10 @@ df = load_data()
 
 # Tampilkan data bulanan per tahun
 st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
-df_transposed = df.transpose()
-st.dataframe(df_transposed)
+st.dataframe(df)
 
 # Tampilkan total tahunan
-yearly = df.sum().reset_index()
+yearly = df.sum(numeric_only=True).reset_index()
 yearly.columns = ["Tahun", "Total Sampah (Ton)"]
 st.subheader("Total Sampah per Tahun")
 st.dataframe(yearly)
@@ -74,7 +87,7 @@ df_bulanan = df.reset_index().melt(id_vars="Bulan", var_name="Tahun", value_name
 df_bulanan["Tahun"] = df_bulanan["Tahun"].astype(int)
 
 # Filter bulan yang dipilih
-df_bulan_terpilih = df_bulanan[df_bulanan["Bulan"] == bulan_input]
+df_bulan_terpilih = df_bulanan[df_bulanan["Bulan"] == bulan_input].dropna()
 
 # Regresi Linear untuk bulan terpilih
 X_bulan = df_bulan_terpilih["Tahun"].values.reshape(-1, 1)
