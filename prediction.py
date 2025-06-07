@@ -7,6 +7,7 @@ import re
 
 st.title("Analisis Regresi Linear Berat Sampah Kota Sukabumi")
 
+# Load data mentah
 @st.cache_data
 def load_data():
     with open("data-sampah-kota-sukabumi.txt", "r", encoding="utf-8") as f:
@@ -15,20 +16,17 @@ def load_data():
     lines = [line.strip() for line in raw.strip().split("\n") if line.strip()]
     cleaned_rows = []
 
-    for line in lines[2:]:  # asumsi 2 baris header
+    for line in lines[2:]:
         parts = re.split(r'\s{2,}', line)
         if len(parts) >= 2:
-            month = parts[0].strip().upper()  # normalisasi bulan ke huruf besar
-            # Gabungkan seluruh kolom angka setelah bulan
-            angka_str = " ".join(parts[1:])
-            numbers = re.findall(r'\d+\.\d+', angka_str)
+            month = parts[0].strip()
+            numbers = re.findall(r'\d+\.\d+', parts[1])
             if len(numbers) == 6:
                 cleaned_rows.append([month] + [float(n) for n in numbers])
 
-    df = pd.DataFrame(cleaned_rows, columns=["BULAN", "2017", "2018", "2020", "2021", "2022", "2023"])
-    df.set_index("BULAN", inplace=True)
+    df = pd.DataFrame(cleaned_rows, columns=["Bulan", "2017", "2018", "2020", "2021", "2022", "2023"])
+    df.set_index("Bulan", inplace=True)
     return df
-
 
 df = load_data()
 
@@ -44,14 +42,9 @@ df_reset = df.reset_index()
 # Ubah ke bentuk per tahun sebagai index, bulan jadi kolom
 df_bulan_per_tahun = df_reset.set_index("BULAN").T  # Transpose
 
-# Normalisasi nama kolom: hapus spasi dan ubah ke huruf kapital semua
-df_bulan_per_tahun.columns = df_bulan_per_tahun.columns.str.strip().str.upper()
-
-# Pastikan hanya ambil bulan yang ada di dataframe dan sesuai urutan
-existing_months = [month for month in bulan_urut if month in df_bulan_per_tahun.columns]
-df_bulan_per_tahun = df_bulan_per_tahun[existing_months]
-
-# Tampilkan data
+# Pastikan hanya ambil bulan yang sesuai urutan
+df_bulan_per_tahun = df_bulan_per_tahun[bulan_urut]
+# Tampilkan
 st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
 st.dataframe(df_bulan_per_tahun)
 
@@ -90,11 +83,11 @@ tahun_input = st.number_input("Masukkan tahun", min_value=2024, max_value=2100, 
 bulan_input = st.selectbox("Pilih bulan", list(df.index))
 
 # Buat model per bulan
-df_bulanan = df.reset_index().melt(id_vars="BULAN", var_name="Tahun", value_name="Ton")
+df_bulanan = df.reset_index().melt(id_vars="Bulan", var_name="Tahun", value_name="Ton")
 df_bulanan["Tahun"] = df_bulanan["Tahun"].astype(int)
 
 # Filter bulan yang dipilih
-df_bulan_terpilih = df_bulanan[df_bulanan["BULAN"] == bulan_input]
+df_bulan_terpilih = df_bulanan[df_bulanan["Bulan"] == bulan_input]
 
 # Regresi Linear untuk bulan terpilih
 X_bulan = df_bulan_terpilih["Tahun"].values.reshape(-1, 1)
