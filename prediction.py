@@ -47,22 +47,25 @@ df = load_data()
 # Tampilkan data bulanan per tahun
 st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
 st.dataframe(df)
-
 # Tampilkan total tahunan
 yearly = df.sum(numeric_only=True).reset_index()
 yearly.columns = ["Tahun", "Total Sampah (Ton)"]
 st.subheader("Total Sampah per Tahun")
 st.dataframe(yearly)
 
+# Bersihkan data dari NaN
+yearly_clean = yearly.dropna()
+
 # Grafik batang total tahunan
 st.subheader("Grafik Total Sampah per Tahun")
 fig1, ax1 = plt.subplots()
-sns.barplot(data=yearly, x="Tahun", y="Total Sampah (Ton)", ax=ax1)
+sns.barplot(data=yearly_clean, x="Tahun", y="Total Sampah (Ton)", ax=ax1)
 st.pyplot(fig1)
 
 # Regresi Linear berdasarkan total tahunan
-X = yearly["Tahun"].astype(int).values.reshape(-1, 1)
-y = yearly["Total Sampah (Ton)"].values
+X = yearly_clean["Tahun"].astype(int).values.reshape(-1, 1)
+y = yearly_clean["Total Sampah (Ton)"].values
+
 model_total = LinearRegression()
 model_total.fit(X, y)
 preds_total = model_total.predict(X)
@@ -76,6 +79,7 @@ ax2.set_xlabel("Tahun")
 ax2.set_ylabel("Total Sampah (Ton)")
 ax2.legend()
 st.pyplot(fig2)
+
 
 # Prediksi berdasarkan input user (tahun & bulan)
 st.subheader("Prediksi Berat Sampah Berdasarkan Tahun dan Bulan")
