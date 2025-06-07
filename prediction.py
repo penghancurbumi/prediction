@@ -42,9 +42,14 @@ df_reset = df.reset_index()
 # Ubah ke bentuk per tahun sebagai index, bulan jadi kolom
 df_bulan_per_tahun = df_reset.set_index("Bulan").T  # Transpose
 
-# Pastikan hanya ambil bulan yang sesuai urutan
-df_bulan_per_tahun = df_bulan_per_tahun[bulan_urut]
-# Tampilkan
+# Normalisasi nama kolom: hapus spasi dan ubah ke huruf kapital semua
+df_bulan_per_tahun.columns = df_bulan_per_tahun.columns.str.strip().str.upper()
+
+# Pastikan hanya ambil bulan yang ada di dataframe dan sesuai urutan
+existing_months = [month for month in bulan_urut if month in df_bulan_per_tahun.columns]
+df_bulan_per_tahun = df_bulan_per_tahun[existing_months]
+
+# Tampilkan data
 st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
 st.dataframe(df_bulan_per_tahun)
 
