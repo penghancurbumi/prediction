@@ -24,8 +24,6 @@ def load_data():
             numbers = re.findall(r'\d+\.\d+', angka_str)
             if len(numbers) == 6:
                 cleaned_rows.append([month] + [float(n) for n in numbers])
-    
-    print("Isi cleaned_rows:", cleaned_rows)
 
     df = pd.DataFrame(cleaned_rows, columns=["BULAN", "2017", "2018", "2020", "2021", "2022", "2023"])
     df.set_index("BULAN", inplace=True)
