@@ -7,7 +7,6 @@ import re
 
 st.title("Analisis Regresi Linear Berat Sampah Kota Sukabumi")
 
-# Load data mentah
 @st.cache_data
 def load_data():
     with open("data-sampah-kota-sukabumi.txt", "r", encoding="utf-8") as f:
@@ -16,17 +15,20 @@ def load_data():
     lines = [line.strip() for line in raw.strip().split("\n") if line.strip()]
     cleaned_rows = []
 
-    for line in lines[2:]:
+    for line in lines[2:]:  # asumsi 2 baris header
         parts = re.split(r'\s{2,}', line)
         if len(parts) >= 2:
-            month = parts[0].strip()
-            numbers = re.findall(r'\d+\.\d+', parts[1])
+            month = parts[0].strip().upper()  # normalisasi bulan ke huruf besar
+            # Gabungkan seluruh kolom angka setelah bulan
+            angka_str = " ".join(parts[1:])
+            numbers = re.findall(r'\d+\.\d+', angka_str)
             if len(numbers) == 6:
                 cleaned_rows.append([month] + [float(n) for n in numbers])
 
-    df = pd.DataFrame(cleaned_rows, columns=["Bulan", "2017", "2018", "2020", "2021", "2022", "2023"])
-    df.set_index("Bulan", inplace=True)
+    df = pd.DataFrame(cleaned_rows, columns=["BULAN", "2017", "2018", "2020", "2021", "2022", "2023"])
+    df.set_index("BULAN", inplace=True)
     return df
+
 
 df = load_data()
 
