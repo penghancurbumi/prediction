@@ -30,14 +30,23 @@ def load_data():
 
 df = load_data()
 
-# Tampilkan data bulanan per tahun
-st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
-df_bulan_tahun = df.T  # Transpose: tahun = index, bulan = kolom
-df_bulan_tahun = df_bulan_tahun[[
+# Atur urutan bulan dengan urutan eksplisit
+bulan_urut = [
     'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
     'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
-]]
-st.dataframe(df_bulan_tahun)
+]
+
+# Reset index agar 'Bulan' jadi kolom biasa
+df_reset = df.reset_index()
+
+# Ubah ke bentuk per tahun sebagai index, bulan jadi kolom
+df_bulan_per_tahun = df_reset.set_index("Bulan").T  # Transpose
+
+# Pastikan hanya ambil bulan yang sesuai urutan
+df_bulan_per_tahun = df_bulan_per_tahun[bulan_urut]
+# Tampilkan
+st.subheader("Data Berat Sampah per Bulan per Tahun (Ton)")
+st.dataframe(df_bulan_per_tahun)
 
 # Tampilkan total tahunan
 yearly = df.sum().reset_index()
