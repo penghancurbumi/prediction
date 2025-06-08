@@ -35,11 +35,11 @@ st.subheader("Data Berat Sampah per Bulan per Tahun (Transpos)")
 df_transposed = df.transpose()
 st.dataframe(df_transposed)
 
-# ✅ Tampilkan data asli per bulan (semua tahun)
+# Tampilkan data asli per bulan (semua tahun)
 st.subheader("Data Berat Sampah per Bulan (Semua Tahun)")
 st.dataframe(df)
 
-# ✅ Grafik garis: tren bulanan per tahun
+# Grafik garis: tren bulanan per tahun
 st.subheader("Grafik Tren Berat Sampah Bulanan per Tahun")
 fig3, ax3 = plt.subplots()
 for tahun in df.columns:
@@ -51,7 +51,7 @@ ax3.legend()
 plt.xticks(rotation=45)
 st.pyplot(fig3)
 
-# ✅ Pilih tahun & tampilkan data bulanan
+# Pilih tahun & tampilkan data bulanan
 st.subheader("Lihat Data Bulanan untuk Tahun Tertentu")
 tahun_dipilih = st.selectbox("Pilih Tahun", df.columns.tolist())
 st.write(f"Berat Sampah Bulanan di Tahun {tahun_dipilih}:")
@@ -107,3 +107,16 @@ model_bulan.fit(X_bulan, y_bulan)
 # Prediksi untuk input tahun
 pred_bulan = model_bulan.predict([[tahun_input]])
 st.success(f"Prediksi berat sampah untuk bulan **{bulan_input} {tahun_input}** adalah **{pred_bulan[0]:.2f} ton**")
+
+# Visualisasi regresi linear untuk bulan yang dipilih
+st.subheader(f"Grafik Regresi Linear Sampah Bulanan - {bulan_input}")
+
+fig4, ax4 = plt.subplots()
+ax4.scatter(X_bulan, y_bulan, color="blue", label="Data Aktual")
+ax4.plot(X_bulan, model_bulan.predict(X_bulan), color="red", label="Regresi Linear")
+ax4.scatter(tahun_input, pred_bulan[0], color="green", s=100, label="Prediksi")
+ax4.set_xlabel("Tahun")
+ax4.set_ylabel("Berat Sampah (Ton)")
+ax4.set_title(f"Regresi Linear Berat Sampah Bulan {bulan_input}")
+ax4.legend()
+st.pyplot(fig4)
