@@ -19,7 +19,7 @@ def load_data():
     df['Total_Sampah_Tahunan(Ton)'] = df['Total_Sampah_Tahunan(Ton)'].astype(float)
     return df
 
-data_tahun = load_data()
+df = load_data()
 
 X = df[['Tahun']]
 y = df['Total_Sampah_Tahunan(Ton)']
