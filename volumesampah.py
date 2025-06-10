@@ -81,7 +81,7 @@ st.pyplot(fig)
 st.subheader("📊 Diagram Batang Total Sampah per Tahun")
 
 # Gabungkan data historis dengan prediksi tahun input user
-data_batang = data_tahun.copy()
+data_batang = df.copy()
 if tahun_input not in data_batang['Tahun'].values:
     data_batang = pd.concat([
         data_batang,
