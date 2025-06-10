@@ -12,7 +12,7 @@ st.markdown("Model prediksi menggunakan **Linear Regression** berdasarkan data t
 # === Load Data ===
 @st.cache_data
 def load_data():
-    df = pd.read_csv("data sampah kota sukabumi.csv")
+    df = pd.read_csv("data sampah kota sukabumi.csv",sep=";")
     df.columns = df.columns.astype(str)
     df.columns = ['Tahun', 'Total_Sampah_Tahunan(Ton)']
     df['Tahun'] = df['Tahun'].astype(int)
