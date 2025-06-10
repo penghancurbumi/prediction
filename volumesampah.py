@@ -39,6 +39,9 @@ def preprocess_data(df_raw):
 
     return df
 
+print("=== Data Setelah Preprocessing ===")
+print(data_tahun)
+
 # === Load and Clean Data ===
 @st.cache_data
 def load_data():
