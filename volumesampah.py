@@ -14,15 +14,15 @@ st.markdown("Model prediksi menggunakan **Linear Regression** berdasarkan data t
 def load_data():
     df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
     df.columns = df.columns.astype(str)
-    data_tahun.columns = ['Tahun', 'Total_Sampah']
+    data_tahun.columns = ['Tahun', 'Total_Sampah_Tahunan(Ton)']
     data_tahun['Tahun'] = data_tahun['Tahun'].astype(int)
-    data_tahun['Total_Sampah'] = data_tahun['Total_Sampah'].astype(float)
+    data_tahun['Total_Sampah_Tahunan(Ton)'] = data_tahun['Total_Sampah_Tahunan(Ton)'].astype(float)
     return data_tahun
 
 data_tahun = load_data()
 
 X = data_tahun[['Tahun']]
-y = data_tahun['Total_Sampah']
+y = data_tahun['Total_Sampah_Tahunan(Ton)']
 
 # Tahun prediksi dari tahun min sampai 2027
 tahun_min = data_tahun['Tahun'].min()
@@ -85,7 +85,7 @@ data_batang = data_tahun.copy()
 if tahun_input not in data_batang['Tahun'].values:
     data_batang = pd.concat([
         data_batang,
-        pd.DataFrame({'Tahun': [tahun_input], 'Total_Sampah': [pred_lin]})
+        pd.DataFrame({'Tahun': [tahun_input], 'Total_Sampah_Tahunan(Ton)': [pred_lin]})
     ], ignore_index=True)
 
 # Urutkan berdasarkan tahun agar grafik rapi
@@ -97,7 +97,7 @@ fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
 historis = data_batang['Tahun'] != tahun_input
 ax_bar.bar(
     data_batang['Tahun'][historis],
-    data_batang['Total_Sampah'][historis],
+    data_batang['Total_Sampah_Tahunan(Ton)'][historis],
     color='green',
     label='Data Historis'
 )
@@ -105,7 +105,7 @@ ax_bar.bar(
 # Bar khusus untuk data input user (prediksi)
 ax_bar.bar(
     data_batang['Tahun'][~historis],
-    data_batang['Total_Sampah'][~historis],
+    data_batang['Total_Sampah_Tahunan(Ton)'][~historis],
     color='red',
     label=f'Prediksi {tahun_input}'
 )
