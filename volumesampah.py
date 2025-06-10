@@ -15,18 +15,18 @@ def load_data():
     df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
     df.columns = df.columns.astype(str)
     df.columns = ['Tahun', 'Total_Sampah_Tahunan(Ton)']
-    df['Tahun'] = data_tahun['Tahun'].astype(int)
-    df['Total_Sampah_Tahunan(Ton)'] = data_tahun['Total_Sampah_Tahunan(Ton)'].astype(float)
+    df['Tahun'] = df['Tahun'].astype(int)
+    df['Total_Sampah_Tahunan(Ton)'] = df['Total_Sampah_Tahunan(Ton)'].astype(float)
     return df
 
 data_tahun = load_data()
 
-X = data_tahun[['Tahun']]
-y = data_tahun['Total_Sampah_Tahunan(Ton)']
+X = df[['Tahun']]
+y = df['Total_Sampah_Tahunan(Ton)']
 
 # Tahun prediksi dari tahun min sampai 2027
-tahun_min = data_tahun['Tahun'].min()
-tahun_max = data_tahun['Tahun'].max()
+tahun_min = df['Tahun'].min()
+tahun_max = df['Tahun'].max()
 tahun_pred_all = pd.DataFrame({'Tahun': list(range(tahun_min, 2028))})
 
 # Model Linear Regression
