@@ -79,3 +79,28 @@ ax.grid(True)
 ax.legend()
 
 st.pyplot(fig)
+
+st.subheader("📊 Diagram Batang Total Sampah per Tahun")
+
+fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
+ax_bar.bar(data_tahun['Tahun'], data_tahun['Total_Sampah'], color='green')
+ax_bar.set_xlabel('Tahun')
+ax_bar.set_ylabel('Total Sampah (ton)')
+ax_bar.set_title('Diagram Batang Total Sampah Kota Sukabumi')
+ax_bar.grid(True, axis='y')
+
+st.pyplot(fig_bar)
+
+st.subheader("🔎 Scatter Plot Data Asli vs Prediksi")
+
+fig_scatter, ax_scatter = plt.subplots(figsize=(12, 6))
+ax_scatter.scatter(X, y, color='blue', label='Data Asli')
+ax_scatter.plot(tahun_pred_all['Tahun'], y_lin_future, linestyle='--', color='orange', label='Prediksi (Linear Regression)')
+ax_scatter.set_xlabel('Tahun')
+ax_scatter.set_ylabel('Total Sampah (ton)')
+ax_scatter.set_title('Scatter Plot: Data Asli dan Hasil Prediksi')
+ax_scatter.grid(True)
+ax_scatter.legend()
+
+st.pyplot(fig_scatter)
+
