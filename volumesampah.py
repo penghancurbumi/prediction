@@ -14,10 +14,10 @@ st.markdown("Model prediksi menggunakan **Linear Regression** berdasarkan data t
 def load_data():
     df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
     df.columns = df.columns.astype(str)
-    data_tahun.columns = ['Tahun', 'Total_Sampah_Tahunan(Ton)']
-    data_tahun['Tahun'] = data_tahun['Tahun'].astype(int)
-    data_tahun['Total_Sampah_Tahunan(Ton)'] = data_tahun['Total_Sampah_Tahunan(Ton)'].astype(float)
-    return data_tahun
+    df.columns = ['Tahun', 'Total_Sampah_Tahunan(Ton)']
+    df['Tahun'] = data_tahun['Tahun'].astype(int)
+    df['Total_Sampah_Tahunan(Ton)'] = data_tahun['Total_Sampah_Tahunan(Ton)'].astype(float)
+    return df
 
 data_tahun = load_data()
 
