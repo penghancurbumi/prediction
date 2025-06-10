@@ -45,6 +45,9 @@ def load_data():
     df_raw = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
     return preprocess_data(df_raw)
 
+print("=== Data Setelah Preprocessing ===")
+print(data_tahun)
+
 data_tahun = load_data()
 
 # === Modeling ===
