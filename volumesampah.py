@@ -12,21 +12,23 @@ st.markdown("Model prediksi menggunakan **Linear Regression** berdasarkan data t
 # === Load Data ===
 @st.cache_data
 def load_data():
-    df = pd.read_csv("data sampah kota sukabumi.csv",sep=";")
+    df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
     df.columns = df.columns.astype(str)
-    df.columns = ['Tahun', 'Total_sampah']
-    df['Tahun'] = df['Tahun'].astype(int)
-    df['Total_sampah'] = df['Total_sampah'].astype(float)
-    return df
+    baris_tahunan = df[df['BULAN'].str.upper().str.strip() == 'TAHUNAN']
+    data_tahun = baris_tahunan.drop(columns=['BULAN']).T.reset_index()
+    data_tahun.columns = ['Tahun', 'Total_Sampah']
+    data_tahun['Tahun'] = data_tahun['Tahun'].astype(int)
+    data_tahun['Total_Sampah'] = data_tahun['Total_Sampah'].astype(float)
+    return data_tahun
 
-df = load_data()
+data_tahun = load_data()
 
-X = df[['Tahun']]
-y = df['Total_sampah']
+X = data_tahun[['Tahun']]
+y = data_tahun['Total_Sampah']
 
 # Tahun prediksi dari tahun min sampai 2027
-tahun_min = df['Tahun'].min()
-tahun_max = df['Tahun'].max()
+tahun_min = data_tahun['Tahun'].min()
+tahun_max = data_tahun['Tahun'].max()
 tahun_pred_all = pd.DataFrame({'Tahun': list(range(tahun_min, 2028))})
 
 # Model Linear Regression
@@ -77,44 +79,3 @@ ax.grid(True)
 ax.legend()
 
 st.pyplot(fig)
-
-st.subheader("📊 Diagram Batang Total Sampah per Tahun")
-
-# Gabungkan data historis dengan prediksi tahun input user
-data_batang = df.copy()
-if tahun_input not in data_batang['Tahun'].values:
-    data_batang = pd.concat([
-        data_batang,
-        pd.DataFrame({'Tahun': [tahun_input], 'Total_sampah': [pred_lin]})
-    ], ignore_index=True)
-
-# Urutkan berdasarkan tahun agar grafik rapi
-data_batang = data_batang.sort_values(by='Tahun')
-
-fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
-
-# Bar biasa untuk data historis
-historis = data_batang['Tahun'] != tahun_input
-ax_bar.bar(
-    data_batang['Tahun'][historis],
-    data_batang['Total_sampah'][historis],
-    color='green',
-    label='Data Historis'
-)
-
-# Bar khusus untuk data input user (prediksi)
-ax_bar.bar(
-    data_batang['Tahun'][~historis],
-    data_batang['Total_sampah'][~historis],
-    color='red',
-    label=f'Prediksi {tahun_input}'
-)
-
-ax_bar.set_xlabel('Tahun')
-ax_bar.set_ylabel('Total Sampah (ton)')
-ax_bar.set_title('Diagram Batang Total Sampah Kota Sukabumi')
-ax_bar.grid(True, axis='y')
-ax_bar.legend()
-
-st.pyplot(fig_bar)
-
