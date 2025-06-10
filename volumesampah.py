@@ -10,14 +10,16 @@ st.title("♻️ Prediksi Total Sampah Kota Sukabumi")
 st.markdown("Model prediksi menggunakan **Linear Regression** berdasarkan data tahunan.")
 
 # === Load Data ===
+@st.cache_data
 def load_data():
-    df = pd.read_csv("data sampah kota sukabumi (1).csv", sep=";", skiprows=1)
-    df = df.iloc[:, :2]  # Ambil hanya dua kolom pertama
-    df.columns = ['Tahun', 'Total_Sampah']
-    df.dropna(inplace=True)
-    df['Tahun'] = df['Tahun'].astype(int)
-    df['Total_Sampah'] = df['Total_Sampah'].astype(float)
-    return df
+    df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
+    df.columns = df.columns.astype(str)
+    baris_tahunan = df[df['BULAN'].str.upper().str.strip() == 'TAHUNAN']
+    data_tahun = baris_tahunan.drop(columns=['BULAN']).T.reset_index()
+    data_tahun.columns = ['Tahun', 'Total_Sampah']
+    data_tahun['Tahun'] = data_tahun['Tahun'].astype(int)
+    data_tahun['Total_Sampah'] = data_tahun['Total_Sampah'].astype(float)
+    return data_tahun
 
 data_tahun = load_data()
 
