@@ -90,3 +90,31 @@ ax.grid(True)
 ax.legend()
 
 st.pyplot(fig)
+
+# Diagram Batang
+
+st.subheader("📊 Diagram Batang: Total Sampah Historis dan Prediksi")
+
+# Gabungkan data historis dan prediksi ke dataframe baru
+df_bar = tahun_pred_all.copy()
+df_bar['Prediksi_Total_Sampah'] = y_lin_future
+
+# Tandai mana yang historis
+df_bar['Tipe'] = df_bar['Tahun'].apply(lambda x: 'Data Historis' if x <= tahun_max else 'Prediksi')
+
+# Buat warna berbeda untuk historis dan prediksi
+colors = df_bar['Tipe'].map({'Data Historis': 'skyblue', 'Prediksi': 'orange'})
+
+# Plot bar chart
+fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
+ax_bar.bar(df_bar['Tahun'], df_bar['Prediksi_Total_Sampah'], color=colors)
+
+ax_bar.axvline(x=tahun_max + 0.5, color='gray', linestyle='--', alpha=0.7)
+ax_bar.text(tahun_max + 0.6, ax_bar.get_ylim()[1]*0.95, 'Mulai Prediksi →', color='gray')
+
+ax_bar.set_xlabel('Tahun')
+ax_bar.set_ylabel('Total Sampah (ton)')
+ax_bar.set_title('Diagram Batang: Total Sampah Historis dan Prediksi')
+ax_bar.grid(axis='y')
+
+st.pyplot(fig_bar)
