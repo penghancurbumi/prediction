@@ -90,3 +90,27 @@ ax.grid(True)
 ax.legend()
 
 st.pyplot(fig)
+
+st.pyplot(fig)  # Menampilkan grafik prediksi garis
+
+# === diagram batang ===
+st.subheader("📊 Diagram Batang: Total Sampah per Tahun")
+
+fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
+
+# Bar data historis
+ax_bar.bar(data_tahun['Tahun'], data_tahun['Total_Sampah'], color='skyblue', label='Data Historis')
+
+# Tambahkan batang prediksi jika tahun_input belum ada di data historis
+if tahun_input not in data_tahun['Tahun'].values:
+    ax_bar.bar(tahun_input, pred_lin, color='orange', label=f'Prediksi {tahun_input}')
+    ax_bar.annotate(f"{pred_lin:.1f}", (tahun_input, pred_lin), textcoords="offset points", 
+                    xytext=(0, 5), ha='center', color='red')
+
+# Format visual
+ax_bar.set_xlabel("Tahun")
+ax_bar.set_ylabel("Total Sampah (ton)")
+ax_bar.set_title("Total Sampah Kota Sukabumi per Tahun (Diagram Batang)")
+ax_bar.grid(axis='y', linestyle='--', alpha=0.7)
+ax_bar.legend()
+st.pyplot(fig_bar)
