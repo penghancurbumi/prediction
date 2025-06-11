@@ -68,26 +68,25 @@ pred_lin = linreg.predict(tahun_input_df)[0]
 st.markdown(f"### Hasil Prediksi Tahun {tahun_input}:")
 st.write(f"- Linear Regression: **{pred_lin:.2f} ton**")
 
-# Buat salinan data historis + tambahkan data prediksi user
-data_bar = data_tahun.copy()
-if tahun_input not in data_bar['Tahun'].values:
-    data_pred_input = pd.DataFrame({'Tahun': [tahun_input], 'Total_Sampah': [pred_lin]})
-    data_bar = pd.concat([data_bar, data_pred_input], ignore_index=True)
-    data_bar = data_bar.sort_values('Tahun').reset_index(drop=True)
-
-# === Grafik Prediksi Linear Regression ===
+# Visualisasi
 st.subheader("📈 Grafik Prediksi Linear Regression")
 
-fig_line, ax_line = plt.subplots(figsize=(12, 6))
-ax_line.plot(tahun_pred_all['Tahun'], y_lin_future, linestyle='--', color='red', label='Linear Regression')
-ax_line.scatter(X, y, color='black', label='Data Asli')
-ax_line.scatter(tahun_input, pred_lin, color='red', s=100, zorder=5)
-ax_line.annotate(f"{pred_lin:.1f}", (tahun_input, pred_lin), textcoords="offset points", xytext=(0,10), ha='center', color='red')
+fig, ax = plt.subplots(figsize=(12, 6))
 
-ax_line.set_xlabel('Tahun')
-ax_line.set_ylabel('Total Sampah (ton)')
-ax_line.set_title('Prediksi Total Sampah Kota Sukabumi per Tahun')
-ax_line.grid(True)
-ax_line.legend()
+# Plot data asli
+ax.scatter(X, y, color='black', label='Data Asli')
 
-st.pyplot(fig_line)
+# Plot prediksi masa depan
+ax.plot(tahun_pred_all, y_lin_future, linestyle='--', color='red', label='Linear Regression')
+
+# Highlight prediksi tahun input user
+ax.scatter(tahun_input, pred_lin, color='red', s=100, zorder=5)
+ax.annotate(f"{pred_lin:.1f}", (tahun_input, pred_lin), textcoords="offset points", xytext=(0,10), ha='center', color='red')
+
+ax.set_xlabel('Tahun')
+ax.set_ylabel('Total Sampah (ton)')
+ax.set_title('Prediksi Total Sampah Kota Sukabumi per Tahun')
+ax.grid(True)
+ax.legend()
+
+st.pyplot(fig)
