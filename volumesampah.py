@@ -17,12 +17,23 @@ def load_data():
     baris_tahunan = df[df['BULAN'].str.upper().str.strip() == 'TAHUNAN']
     data_tahun = baris_tahunan.drop(columns=['BULAN']).T.reset_index()
     data_tahun.columns = ['Tahun', 'Total_Sampah']
+    
+    # Preprocessing
+    data_tahun = data_tahun.dropna()
+    data_tahun = data_tahun[data_tahun['Tahun'].str.isdigit()]  # Pastikan Tahun bisa dikonversi ke int
     data_tahun['Tahun'] = data_tahun['Tahun'].astype(int)
     data_tahun['Total_Sampah'] = data_tahun['Total_Sampah'].astype(float)
+    data_tahun = data_tahun.sort_values('Tahun').reset_index(drop=True)
+    
     return data_tahun
 
 data_tahun = load_data()
 
+# === Cek Nilai Kosong ===
+st.subheader("🧼 Cek Nilai Kosong Setelah Preprocessing")
+st.write(data_tahun.isnull().sum())
+
+# === Model & Prediksi ===
 X = data_tahun[['Tahun']]
 y = data_tahun['Total_Sampah']
 
@@ -78,7 +89,7 @@ ax.set_title('Prediksi Total Sampah Kota Sukabumi per Tahun')
 ax.grid(True)
 ax.legend()
 
-st.pyplot(fig) 
+st.pyplot(fig)
 
 # Tambahkan Diagram Batang
 st.subheader("📊 Total Sampah Tahunan (Diagram Batang)")
