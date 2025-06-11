@@ -4,113 +4,90 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 
-st.set_page_config(page_title="Prediksi Sampah Sukabumi", layout="wide")
+st.set_page_config(page_title="Prediksi Total Sampah Kota Sukabumi", layout="wide")
 
-st.title("📊 Prediksi Total Sampah Kota Sukabumi per Tahun")
+st.title("♻️ Prediksi Total Sampah Kota Sukabumi")
+st.markdown("Model prediksi menggunakan **Linear Regression** berdasarkan data tahunan.")
 
-# === Load dan Preprocessing Data ===
-df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
-df.columns = df.columns.astype(str)
+# === Load Data ===
+@st.cache_data
+def load_data():
+    df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
+    df.columns = df.columns.astype(str)
+    baris_tahunan = df[df['BULAN'].str.upper().str.strip() == 'TAHUNAN']
+    data_tahun = baris_tahunan.drop(columns=['BULAN']).T.reset_index()
+    data_tahun.columns = ['Tahun', 'Total_Sampah']
+    data_tahun['Tahun'] = data_tahun['Tahun'].astype(int)
+    data_tahun['Total_Sampah'] = data_tahun['Total_Sampah'].astype(float)
+    return data_tahun
 
-# Filter baris 'TAHUNAN' saja
-df = df[df['BULAN'].str.upper().str.strip() == 'TAHUNAN']
-df = df.drop(columns=['BULAN']).T.reset_index()
-df.columns = ['Tahun', 'Total_Sampah']
+data_tahun = load_data()
 
-# Preprocessing
-df = df.dropna()
-df = df[df['Tahun'].str.isdigit()]
-df['Tahun'] = df['Tahun'].astype(int)
-df['Total_Sampah'] = df['Total_Sampah'].astype(float)
-df = df.sort_values('Tahun').reset_index(drop=True)
+X = data_tahun[['Tahun']]
+y = data_tahun['Total_Sampah']
 
-data_tahun = df  # simpan untuk diagram batang
-
-st.success("✅ Data berhasil dimuat dan diproses!")
-
-# === Model dan Prediksi ===
-X = df[['Tahun']]
-y = df['Total_Sampah']
-
-tahun_min = df['Tahun'].min()
-tahun_max = df['Tahun'].max()
+# Tahun prediksi dari tahun min sampai 2027
+tahun_min = data_tahun['Tahun'].min()
+tahun_max = data_tahun['Tahun'].max()
 tahun_pred_all = pd.DataFrame({'Tahun': list(range(tahun_min, 2028))})
 
-model = LinearRegression()
-model.fit(X, y)
+# Model Linear Regression
+linreg = LinearRegression()
+linreg.fit(X, y)
+y_lin_pred = linreg.predict(X)
+y_lin_future = linreg.predict(tahun_pred_all)
 
-y_pred_train = model.predict(X)
-y_pred_future = model.predict(tahun_pred_all)
+# Evaluasi model
+mse_lin = mean_squared_error(y, y_lin_pred)
+r2_lin = r2_score(y, y_lin_pred)
 
-# Evaluasi
-mse = mean_squared_error(y, y_pred_train)
-r2 = r2_score(y, y_pred_train)
+# Tampilkan evaluasi
+st.subheader("📊 Evaluasi Model pada Data Historis")
+st.write(f"Linear Regression — MSE: {mse_lin:.2f}, R²: {r2_lin:.4f}")
 
-st.subheader("📈 Evaluasi Model Linear Regression")
-st.write(f"- **MSE (Mean Squared Error):** {mse:.2f}")
-st.write(f"- **R² (Koefisien Determinasi):** {r2:.4f}")
+# Input tahun untuk prediksi
+st.subheader("🔮 Prediksi Total Sampah per Tahun")
+tahun_input = st.number_input(
+    "Masukkan Tahun untuk Prediksi", 
+    min_value=tahun_min, max_value=2030, value=tahun_max + 1, step=1)
 
-# === Prediksi Tahun Tertentu ===
-tahun_input = st.number_input("Masukkan tahun yang ingin diprediksi", 
-                              min_value=tahun_min, max_value=2030, step=1, value=tahun_max + 1)
 tahun_input_df = pd.DataFrame({'Tahun': [tahun_input]})
-pred_input = model.predict(tahun_input_df)[0]
+pred_lin = linreg.predict(tahun_input_df)[0]
 
-st.success(f"📌 Prediksi Total Sampah untuk Tahun {tahun_input}: **{pred_input:.2f} ton**")
-
-# === Visualisasi: Linear Regression ===
-st.subheader("📉 Visualisasi Linear Regression")
-fig1, ax1 = plt.subplots(figsize=(10, 5))
-ax1.scatter(X, y, color='black', label='Data Asli')
-ax1.plot(tahun_pred_all, y_pred_future, color='red', linestyle='--', label='Linear Regression')
-ax1.scatter(tahun_input, pred_input, color='red', s=100, zorder=5)
-ax1.annotate(f"{pred_input:.1f}", (tahun_input, pred_input), textcoords="offset points", xytext=(0,10), ha='center', color='red')
-
-ax1.set_xlabel("Tahun")
-ax1.set_ylabel("Total Sampah (ton)")
-ax1.set_title("Prediksi Total Sampah Kota Sukabumi per Tahun")
-ax1.grid(True)
-ax1.legend()
-st.pyplot(fig1)
-
-# === Visualisasi: Diagram Batang Data Historis + Prediksi Beberapa Tahun ===
-st.subheader("📊 Diagram Batang: Total Sampah Historis dan Prediksi")
-
-# Prediksi semua tahun dari tahun terakhir data hingga 2030
-tahun_terakhir = data_tahun['Tahun'].max()
-tahun_prediksi = pd.DataFrame({'Tahun': list(range(tahun_terakhir + 1, 2031))})
-y_pred_future = model.predict(tahun_prediksi)
-
-# Gabungkan data historis + prediksi
-df_pred = pd.DataFrame({
-    'Tahun': tahun_prediksi['Tahun'],
-    'Total_Sampah': y_pred_future
-})
-df_pred['Status'] = 'Prediksi'
-
-data_tahun['Status'] = 'Historis'
-df_all = pd.concat([data_tahun, df_pred], ignore_index=True)
+st.markdown(f"### Hasil Prediksi Tahun {tahun_input}:")
+st.write(f"- Linear Regression: **{pred_lin:.2f} ton**")
 
 # Visualisasi
-fig3, ax3 = plt.subplots(figsize=(12, 6))
-colors = df_all['Status'].map({'Historis': 'skyblue', 'Prediksi': 'orange'})
-bars = ax3.bar(df_all['Tahun'], df_all['Total_Sampah'], color=colors)
+st.subheader("📈 Grafik Prediksi Linear Regression")
 
-# Tambahkan garis batas prediksi
-ax3.axvline(x=tahun_terakhir + 0.5, color='gray', linestyle='--', linewidth=1)
-ax3.text(tahun_terakhir + 0.6, ax3.get_ylim()[1]*0.95, "Mulai Prediksi →", color='gray')
+fig, ax = plt.subplots(figsize=(12, 6))
 
-ax3.set_xlabel("Tahun")
-ax3.set_ylabel("Total Sampah (ton)")
-ax3.set_title("Diagram Batang: Total Sampah Historis dan Prediksi")
-ax3.grid(axis='y', linestyle='--', alpha=0.7)
+# Plot data asli
+ax.scatter(X, y, color='black', label='Data Asli')
 
-# Legend
-from matplotlib.patches import Patch
-legend_elements = [
-    Patch(facecolor='skyblue', label='Data Historis'),
-    Patch(facecolor='orange', label='Data Prediksi')
-]
-ax3.legend(handles=legend_elements)
+# Plot prediksi masa depan
+ax.plot(tahun_pred_all, y_lin_future, linestyle='--', color='red', label='Linear Regression')
 
-st.pyplot(fig3)
+# Highlight prediksi tahun input user
+ax.scatter(tahun_input, pred_lin, color='red', s=100, zorder=5)
+ax.annotate(f"{pred_lin:.1f}", (tahun_input, pred_lin), textcoords="offset points", xytext=(0,10), ha='center', color='red')
+
+ax.set_xlabel('Tahun')
+ax.set_ylabel('Total Sampah (ton)')
+ax.set_title('Prediksi Total Sampah Kota Sukabumi per Tahun')
+ax.grid(True)
+ax.legend()
+
+st.pyplot(fig) 
+
+# Tambahkan Diagram Batang
+st.subheader("📊 Total Sampah Tahunan (Diagram Batang)")
+
+fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
+ax_bar.bar(data_tahun['Tahun'], data_tahun['Total_Sampah'], color='green')
+ax_bar.set_xlabel('Tahun')
+ax_bar.set_ylabel('Total Sampah (ton)')
+ax_bar.set_title('Total Sampah Kota Sukabumi per Tahun')
+ax_bar.grid(True)
+
+st.pyplot(fig_bar)
