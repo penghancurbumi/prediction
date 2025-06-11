@@ -40,7 +40,7 @@ y = data_tahun['Total_Sampah']
 # Tahun prediksi dari tahun min sampai 2027
 tahun_min = data_tahun['Tahun'].min()
 tahun_max = data_tahun['Tahun'].max()
-tahun_pred_all = pd.DataFrame({'Tahun': list(range(tahun_min, 2023))})
+tahun_pred_all = pd.DataFrame({'Tahun': list(range(tahun_min, 2030))})
 
 # Model Linear Regression
 linreg = LinearRegression()
