@@ -73,19 +73,44 @@ ax1.grid(True)
 ax1.legend()
 st.pyplot(fig1)
 
-# === Visualisasi: Diagram Batang ===
-st.subheader("📊 Diagram Batang Total Sampah")
-fig2, ax2 = plt.subplots(figsize=(10, 5))
-ax2.bar(data_tahun['Tahun'], data_tahun['Total_Sampah'], color='skyblue', label='Total Sampah')
+# === Visualisasi: Diagram Batang Data Historis + Prediksi Beberapa Tahun ===
+st.subheader("📊 Diagram Batang: Total Sampah Historis dan Prediksi")
 
-# Tambahkan prediksi jika belum ada di data
-if tahun_input not in data_tahun['Tahun'].values:
-    ax2.bar(tahun_input, pred_input, color='orange', label=f'Prediksi {tahun_input}')
-    ax2.annotate(f"{pred_input:.1f}", (tahun_input, pred_input), textcoords="offset points", xytext=(0,5), ha='center', color='red')
+# Prediksi semua tahun dari tahun terakhir data hingga 2030
+tahun_terakhir = data_tahun['Tahun'].max()
+tahun_prediksi = pd.DataFrame({'Tahun': list(range(tahun_terakhir + 1, 2031))})
+y_pred_future = model.predict(tahun_prediksi)
 
-ax2.set_xlabel("Tahun")
-ax2.set_ylabel("Total Sampah (ton)")
-ax2.set_title("Total Sampah Kota Sukabumi per Tahun (Diagram Batang)")
-ax2.grid(axis='y', linestyle='--', alpha=0.7)
-ax2.legend()
-st.pyplot(fig2)
+# Gabungkan data historis + prediksi
+df_pred = pd.DataFrame({
+    'Tahun': tahun_prediksi['Tahun'],
+    'Total_Sampah': y_pred_future
+})
+df_pred['Status'] = 'Prediksi'
+
+data_tahun['Status'] = 'Historis'
+df_all = pd.concat([data_tahun, df_pred], ignore_index=True)
+
+# Visualisasi
+fig3, ax3 = plt.subplots(figsize=(12, 6))
+colors = df_all['Status'].map({'Historis': 'skyblue', 'Prediksi': 'orange'})
+bars = ax3.bar(df_all['Tahun'], df_all['Total_Sampah'], color=colors)
+
+# Tambahkan garis batas prediksi
+ax3.axvline(x=tahun_terakhir + 0.5, color='gray', linestyle='--', linewidth=1)
+ax3.text(tahun_terakhir + 0.6, ax3.get_ylim()[1]*0.95, "Mulai Prediksi →", color='gray')
+
+ax3.set_xlabel("Tahun")
+ax3.set_ylabel("Total Sampah (ton)")
+ax3.set_title("Diagram Batang: Total Sampah Historis dan Prediksi")
+ax3.grid(axis='y', linestyle='--', alpha=0.7)
+
+# Legend
+from matplotlib.patches import Patch
+legend_elements = [
+    Patch(facecolor='skyblue', label='Data Historis'),
+    Patch(facecolor='orange', label='Data Prediksi')
+]
+ax3.legend(handles=legend_elements)
+
+st.pyplot(fig3)
