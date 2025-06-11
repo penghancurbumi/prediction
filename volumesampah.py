@@ -9,7 +9,7 @@ st.set_page_config(page_title="Prediksi Sampah Sukabumi", layout="wide")
 st.title("📊 Prediksi Total Sampah Kota Sukabumi per Tahun")
 
 # === Load dan Preprocessing Data ===
-df = pd.read_csv("data sampah kota sukabumi (3).csv", sep=";", skiprows=1)
+df = pd.read_csv("data sampah kota sukabumi.csv", sep=";", skiprows=1)
 df.columns = df.columns.astype(str)
 
 # Filter baris 'TAHUNAN' saja
