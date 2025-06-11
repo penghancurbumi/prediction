@@ -94,11 +94,28 @@ st.pyplot(fig)
 # Tambahkan Diagram Batang
 st.subheader("📊 Total Sampah Tahunan (Diagram Batang)")
 
+# Gabungkan data asli + hasil prediksi user (jika belum ada di data asli)
+data_bar = data_tahun.copy()
+if tahun_input not in data_bar['Tahun'].values:
+    data_pred = pd.DataFrame({'Tahun': [tahun_input], 'Total_Sampah': [pred_lin]})
+    data_bar = pd.concat([data_bar, data_pred], ignore_index=True)
+    data_bar = data_bar.sort_values('Tahun').reset_index(drop=True)
+
+# Tandai warna: hijau = data asli, merah = prediksi
+colors = ['red' if tahun == tahun_input else 'green' for tahun in data_bar['Tahun']]
+
 fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
-ax_bar.bar(data_tahun['Tahun'], data_tahun['Total_Sampah'], color='green')
+bars = ax_bar.bar(data_bar['Tahun'], data_bar['Total_Sampah'], color=colors)
+
+# Tambahkan label prediksi
+for bar, tahun, nilai in zip(bars, data_bar['Tahun'], data_bar['Total_Sampah']):
+    if tahun == tahun_input:
+        ax_bar.annotate(f'{nilai:.1f}', xy=(bar.get_x() + bar.get_width()/2, bar.get_height()),
+                        xytext=(0, 5), textcoords="offset points", ha='center', color='red', fontweight='bold')
+
 ax_bar.set_xlabel('Tahun')
 ax_bar.set_ylabel('Total Sampah (ton)')
-ax_bar.set_title('Total Sampah Kota Sukabumi per Tahun')
+ax_bar.set_title('Total Sampah Kota Sukabumi per Tahun (dengan Prediksi)')
 ax_bar.grid(True)
 
 st.pyplot(fig_bar)
