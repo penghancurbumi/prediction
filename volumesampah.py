@@ -69,15 +69,15 @@ st.markdown(f"### Hasil Prediksi Tahun {tahun_input}:")
 st.write(f"- Linear Regression: **{pred_lin:.2f} ton**")
 
 # Visualisasi
-st.subheader("📈 Grafik Prediksi Linear Regression")
+st.subheader("📈 Grafik Prediksi Linear Regression & Diagram Batang")
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
-# Plot data asli
-ax.scatter(X, y, color='black', label='Data Asli')
+# Plot data asli sebagai batang
+ax.bar(X['Tahun'], y, color='skyblue', label='Data Historis')
 
-# Plot prediksi masa depan
-ax.plot(tahun_pred_all, y_lin_future, linestyle='--', color='red', label='Linear Regression')
+# Plot garis prediksi masa depan
+ax.plot(tahun_pred_all['Tahun'], y_lin_future, linestyle='--', color='red', label='Linear Regression')
 
 # Highlight prediksi tahun input user
 ax.scatter(tahun_input, pred_lin, color='red', s=100, zorder=5)
@@ -89,4 +89,5 @@ ax.set_title('Prediksi Total Sampah Kota Sukabumi per Tahun')
 ax.grid(True)
 ax.legend()
 
+st.pyplot(fig)
 st.pyplot(fig)
