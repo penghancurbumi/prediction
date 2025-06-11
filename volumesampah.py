@@ -75,25 +75,6 @@ if tahun_input not in data_bar['Tahun'].values:
     data_bar = pd.concat([data_bar, data_pred_input], ignore_index=True)
     data_bar = data_bar.sort_values('Tahun').reset_index(drop=True)
 
-# === Diagram Batang Data Historis + Tahun Prediksi User ===
-st.subheader("📊 Diagram Batang Data Historis + Prediksi")
-
-fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
-
-colors = ['skyblue' if tahun != tahun_input else 'salmon' for tahun in data_bar['Tahun']]
-
-ax_bar.bar(data_bar['Tahun'], data_bar['Total_Sampah'], color=colors)
-ax_bar.set_xlabel('Tahun')
-ax_bar.set_ylabel('Total Sampah (ton)')
-ax_bar.set_title('Total Sampah Kota Sukabumi per Tahun')
-ax_bar.grid(True)
-
-# Highlight nilai prediksi
-if tahun_input not in data_tahun['Tahun'].values:
-    ax_bar.annotate(f"{pred_lin:.1f}", (tahun_input, pred_lin), textcoords="offset points", xytext=(0,10), ha='center', color='red')
-
-st.pyplot(fig_bar)
-
 # === Grafik Prediksi Linear Regression ===
 st.subheader("📈 Grafik Prediksi Linear Regression")
 
